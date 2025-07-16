@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 @EnableWebSecurity
@@ -13,9 +14,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // ✅ Disable CSRF for testing
+            .csrf(csrf -> csrf.disable()) // ❌ CSRF disabled for testing
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ✅ No session tracking
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // ✅ Allow ALL for now
+                .anyRequest().permitAll() // ✅ Permit everything
             );
 
         return http.build();

@@ -31,7 +31,8 @@ public class User {
     private String gender;
 
    @JsonFormat(pattern = "yyyy-MM-dd")  // ✅ Required for JSON → LocalDate
-    private LocalDate dob;
+   @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     private String role = "USER";
 }
