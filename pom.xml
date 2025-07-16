@@ -46,6 +46,19 @@
             <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
+<!-- Add this inside <dependencies> -->
+<dependency>
+    <groupId>jakarta.validation</groupId>
+    <artifactId>jakarta.validation-api</artifactId>
+    <version>3.0.2</version>
+</dependency>
+
+<dependency>
+    <groupId>org.hibernate.validator</groupId>
+    <artifactId>hibernate-validator</artifactId>
+    <version>7.0.5.Final</version>
+</dependency>
+
 
         <!-- Password Encryption -->
         <dependency>

@@ -2,9 +2,13 @@ package de.germanmatrimony.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,10 +21,17 @@ public class User {
 
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @NotBlank
+    @Email
+    @Column( nullable = false)
     private String email;
 
     private String password;
+
+    private String gender;
+
+   @JsonFormat(pattern = "yyyy-MM-dd")  // ✅ Required for JSON → LocalDate
+    private LocalDate dob;
 
     private String role = "USER";
 }
