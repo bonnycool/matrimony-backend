@@ -12,11 +12,19 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     public void sendEmail(String to, String subject, String text) {
+        try{
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("Your OTP for Registration");
         message.setText(text);
         mailSender.send(message);
     }
+    catch (Exception e) {
+        System.out.println("❌ Failed to send email: " + e.getMessage());
+        e.printStackTrace();
+    }
+    }
+
 }
 
