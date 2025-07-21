@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Optional;
+import de.germanmatrimony.backend.service.OTPService;
 
 
 
@@ -29,6 +30,9 @@ public class AuthService {
     private final ConcurrentHashMap<String, String> otpStore = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, UserDTO> pendingUserStore = new ConcurrentHashMap<>();
 
+    @Autowired
+    private OTPService otpService;
+
 
       // ✅ Step 1: Send OTP and temporarily store user details
     public String sendOtpToUser(UserDTO dto) {
@@ -36,7 +40,10 @@ public class AuthService {
             return "Email already registered.";
         }
 
-        String otp = generateOtp();
+        
+        String otp = otpService.generateRegistrationOtp(dto.getEmail());
+
+
 
         // 👉 Add this log for testing
     System.out.println("Generated OTP for " + dto.getEmail() + ": " + otp);
@@ -95,7 +102,5 @@ public class AuthService {
         return Optional.empty();
     }
 
-        private String generateOtp() {
-        return String.valueOf(100000 + new Random().nextInt(900000));
-    }
+    
 }
