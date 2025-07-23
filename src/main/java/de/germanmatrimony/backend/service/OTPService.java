@@ -47,6 +47,15 @@ public class OTPService {
     public void clearResetOtp(String email) {
         resetOtpMap.remove(email);
     }
+// ✅ Check if registration OTP was already generated for this email
+    public boolean hasRegistrationOtp(String email) {
+    return registrationOtpMap.containsKey(email);
+}
+
+    public boolean hasResetOtp(String email) {
+    return resetOtpMap.containsKey(email);
+}
+
 
     // 🔹 Internal OTP generator logic with limits
     private String generateOtp(String email, Map<String, OtpEntry> otpMap, String purpose) {
