@@ -14,6 +14,7 @@ import de.germanmatrimony.backend.service.OTPService;
 import de.germanmatrimony.backend.service.EmailService;
 import java.util.Optional;
 
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
@@ -45,15 +46,18 @@ private EmailService emailService;
         }
     }
 
-  // ✅ NEW: Send OTP + Store user temporarily
-    @PostMapping("/send-otp")
-    public ResponseEntity<?> sendOtp(@RequestBody UserDTO userDTO) {
-        String message = authService.sendOtpToUser(userDTO);
-        if (message.equals("Email already registered.")) {
-            return ResponseEntity.badRequest().body(message);
-        }
-        return ResponseEntity.ok(message);
+  // ✅ NEW: Send OTP + Store user temporarily (for initial registration)
+@PostMapping("/send-otp")
+public ResponseEntity<?> sendOtp(@RequestBody UserDTO userDTO) {
+    String message = authService.sendOtpToUser(userDTO);
+
+    if (message.equals("Email already registered.")) {
+        return ResponseEntity.badRequest().body(message);
     }
+
+    return ResponseEntity.ok(message);
+}
+
 
 
      // ✅ NEW: Verify OTP + Finalize registration
@@ -70,24 +74,35 @@ private EmailService emailService;
         }
     }
 
-    @PostMapping("/resend-otp")
+@PostMapping("/resend-otp")
 public ResponseEntity<String> resendRegistrationOtp(@RequestBody Map<String, String> body) {
     String email = body.get("email");
 
-     // ✅ Check if OTP was originally generated
+    // ✅ Check if OTP was originally generated
     if (!otpService.hasRegistrationOtp(email)) {
         return ResponseEntity.badRequest().body("OTP not generated yet. Please initiate registration first.");
     }
 
-
     try {
         String otp = otpService.generateRegistrationOtp(email); // rate-limiting already applies
-        emailService.sendEmail(email, "Your OTP Code (Resent)", "Your OTP is: " + otp);
+
+          // ✅ FIX: update the stored OTP inside AuthService manually
+        authService.storeResentOtp(email, otp);
+
+        // ✅ Use the correct template (resend version)
+        emailService.sendTemplateEmail(
+            email,
+            "Resend OTP - Registration",
+            "registration_otp_resend.html",
+            Map.of("otp", otp)
+        );
+
         return ResponseEntity.ok("OTP resent successfully.");
     } catch (RuntimeException e) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(e.getMessage());
     }
 }
+
 
 
 }

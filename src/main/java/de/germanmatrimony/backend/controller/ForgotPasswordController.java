@@ -32,16 +32,25 @@ public class ForgotPasswordController {
         this.passwordResetService = passwordResetService;
     }
 
-    @PostMapping("/forgot-password")
+@PostMapping("/forgot-password")
 public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> body) {
     String email = body.get("email");
+
+    if (email == null || email.trim().isEmpty()) {
+        return ResponseEntity.badRequest().body("Email is required.");
+    }
+
     try {
         passwordResetService.sendResetOTP(email);
-        return ResponseEntity.ok("OTP sent to email");
+        System.out.println("✅ Forgot password OTP template email sent to: " + email);
+        return ResponseEntity.ok("OTP sent successfully to your email.");
     } catch (RuntimeException e) {
+        System.out.println("❌ Failed to send forgot password OTP to " + email + ": " + e.getMessage());
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(e.getMessage());
     }
 }
+
+
 
 
     @PostMapping("/verify-otp")
@@ -56,9 +65,14 @@ public ResponseEntity<String> verifyOtp(@RequestBody Map<String, String> body) {
     }
 }
 
+
 @PostMapping("/resend-otp")
 public ResponseEntity<String> resendForgotOtp(@RequestBody Map<String, String> body) {
     String email = body.get("email");
+
+    if (email == null || email.trim().isEmpty()) {
+        return ResponseEntity.badRequest().body("Email is required.");
+    }
 
     if (!userRepository.findByEmail(email).isPresent()) {
         System.out.println("❌ Email not found in DB: " + email);
@@ -75,19 +89,23 @@ public ResponseEntity<String> resendForgotOtp(@RequestBody Map<String, String> b
         String otp = otpService.generateResetOtp(email);
         System.out.println("✅ Resending RESET OTP for " + email + ": " + otp);
 
-        emailService.sendEmail(
+        // ✅ Template message setup
+        emailService.sendTemplateEmail(
             email,
             "Your Reset OTP (Resent)",
-            "Your OTP is: " + otp
+            "forgot_password_otp_resend.html",
+            Map.of(
+                "otp", otp,
+                "introMessage", "Here is your OTP again to reset your password:"
+            )
         );
 
         return ResponseEntity.ok("Reset OTP resent successfully.");
     } catch (RuntimeException e) {
+        System.out.println("❌ Failed to resend OTP to " + email + ": " + e.getMessage());
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(e.getMessage());
     }
 }
-
-
 
 
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import de.germanmatrimony.backend.model.User;
 import de.germanmatrimony.backend.repository.UserRepository;
 import java.util.Optional;
+import java.util.Map;
 
 
 
@@ -33,10 +34,14 @@ public void sendResetOTP(String email) {
         String otp = otpService.generateResetOtp(email);
         System.out.println("✅ RESET OTP generated for: " + email + " | OTP: " + otp);
 
-        emailService.sendEmail(
+        
+
+          // ✅ Use the forgot password OTP template
+        emailService.sendTemplateEmail(
             email,
             "Your OTP for Password Reset",
-            "Your OTP is: " + otp
+            "forgot_password_otp.html",
+            Map.of("otp", otp)  // Only OTP is needed now
         );
 
         System.out.println("✅ OTP email sent successfully to " + email);

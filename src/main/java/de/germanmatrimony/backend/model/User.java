@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "users",uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
@@ -30,9 +31,9 @@ public class User {
 
     private String gender;
 
-   @JsonFormat(pattern = "yyyy-MM-dd")  // ✅ Required for JSON → LocalDate
-   @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
+    @JsonFormat(pattern = "yyyy-MM-dd")  // ✅ Required for JSON → LocalDate
 
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
     private String role = "USER";
 }
