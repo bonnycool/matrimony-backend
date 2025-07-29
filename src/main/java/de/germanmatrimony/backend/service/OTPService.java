@@ -39,6 +39,10 @@ public class OTPService {
         return validateOtp(email, otp, resetOtpMap);
     }
 
+    public void storeRegistrationOtp(String email, String otp) {
+    registrationOtpMap.put(email, new OtpEntry(otp, System.currentTimeMillis()));
+}
+
     // 🔹 Clear OTP (optional usage)
     public void clearRegistrationOtp(String email) {
         registrationOtpMap.remove(email);

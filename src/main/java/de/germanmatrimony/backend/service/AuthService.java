@@ -12,6 +12,8 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Optional;
 import de.germanmatrimony.backend.service.OTPService;
+import de.germanmatrimony.backend.service.EmailService;
+import java.util.Map;
 
 
 
@@ -33,30 +35,31 @@ public class AuthService {
     @Autowired
     private OTPService otpService;
 
-
-      // ✅ Step 1: Send OTP and temporarily store user details
-    public String sendOtpToUser(UserDTO dto) {
-        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            return "Email already registered.";
-        }
-
-        
-        String otp = otpService.generateRegistrationOtp(dto.getEmail());
-
-
-
-        // 👉 Add this log for testing
-    System.out.println("Generated OTP for " + dto.getEmail() + ": " + otp);
-
-    
-        otpStore.put(dto.getEmail(), otp);
-        pendingUserStore.put(dto.getEmail(), dto);
-
-        emailService.sendEmail(dto.getEmail(), "Your OTP Code", "Your OTP is: " + otp);
-
-        return "OTP sent successfully.";
+// ✅ Initial OTP: Send + store user
+public String sendOtpToUser(UserDTO dto) {
+    if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+        return "Email already registered.";
     }
 
+    String otp = otpService.generateRegistrationOtp(dto.getEmail());
+    System.out.println("Generated OTP for " + dto.getEmail() + ": " + otp);
+
+    otpStore.put(dto.getEmail(), otp);
+    pendingUserStore.put(dto.getEmail(), dto);
+
+    emailService.sendTemplateEmail(
+        dto.getEmail(),
+        "Your OTP Code",
+        "registration_otp_initial.html",
+        Map.of("otp", otp)
+    );
+
+    return "OTP sent successfully.";
+}
+
+public void storeResentOtp(String email, String otp) {
+    otpStore.put(email, otp); // ✅ overwrite old OTP with new one
+}
 
    // ✅ Step 2: Verify OTP and save user permanently
     public String verifyOtpAndRegister(String email, String otp) {
